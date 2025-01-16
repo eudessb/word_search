@@ -19,7 +19,12 @@ Este projeto contém a seguinte estrutura de diretórios:
 
 ## Fluxo do programa
 
-O fluxo do programa ocorre de maneira relativamente simples. Primeiro as letras serão inseridas numa matriz para que possa ser formado um tabuleiro. Após o tabuleiro ter sido criado o programa utilizará `buscar_palavras` para para percorrer a matriz em todas as direções, validar sequências de letras na trie e inserir palavras válidas na AVL.
+O fluxo do programa ocorre de maneira relativamente simples. Primeiro as letras serão inseridas numa matriz para que possa ser formado um tabuleiro. Após o tabuleiro ter sido criado o programa utilizará `buscar_palavras`  para percorrer a matriz em todas as direções, validar sequências de letras na trie e inserir palavras válidas na AVL.
+
+## Dependências
+
+- **Compilador:** GCC
+- **Make**: Para facilitar a compilação e execução do projeto.
 
 ## Arquivo Makefile
 
@@ -33,7 +38,3 @@ O projeto usa um **Makefile** para facilitar a compilação e execução. Aqui e
 - **Limpar o diretório**:
   `make clean`
 
-## Dependências
-
-- **Compilador:** GCC
-- **Make**: Para facilitar a compilação e execução do projeto.
