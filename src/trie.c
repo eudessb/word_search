@@ -1,63 +1,65 @@
-
 #include "trie.h"
-#define ALFABETO 26
+/*
+'NO' virou 'NODE' para evitar confusões com as funções da AVL que usam uma struct NO.
+*/
 
-
-No *criar_no()
+Node *criar_Node()
 {
-  No *novo_no = (No *)malloc(sizeof(No));
-  
-  if(novo_no)
+  Node *novo_Node = (Node *)malloc(sizeof(Node));
+
+  if (novo_Node)
   {
-    novo_no->fim_da_palavra = false;
-    for(int i = 0; i < ALFABETO; i++){
-      novo_no->filhos[i] = NULL;
+    novo_Node->fim_da_palavra = false;
+    for (int i = 0; i < ALFABETO; i++)
+    {
+      novo_Node->filhos[i] = NULL;
     }
   }
-  
-  return novo_no;
+
+  return novo_Node;
 }
 
-void inserir(No *raiz, const char *palavra)
+void inserir(Node *raiz, const char *palavra)
 {
-  No *atual = raiz;
-  
-  for(int i = 0; palavra[i] != '\0'; i++){
+  Node *atual = raiz;
+
+  for (int i = 0; palavra[i] != '\0'; i++)
+  {
     int indice = palavra[i] - 'a';
 
-    if(atual->filhos[indice] == NULL)
-      atual->filhos[indice] = criar_no();
+    if (atual->filhos[indice] == NULL)
+      atual->filhos[indice] = criar_Node();
 
     atual = atual->filhos[indice];
   }
-  
+
   atual->fim_da_palavra = true;
 }
 
-bool buscar(No *raiz, const char *palavra)
+bool buscar(Node *raiz, const char *palavra)
 {
-  No *atual = raiz;
-  
-  for(int i = 0; palavra[i] != '\0'; i++){
+  Node *atual = raiz;
+
+  for (int i = 0; palavra[i] != '\0'; i++)
+  {
     int indice = palavra[i] - 'a';
 
-    if(atual->filhos[indice] == NULL)
+    if (atual->filhos[indice] == NULL)
       return false;
 
     atual = atual->filhos[indice];
   }
-  
+
   return atual->fim_da_palavra;
 }
 
-void liberar_trie(No *raiz)
+void liberar_trie(Node *raiz)
 {
-  if(raiz == NULL)
+  if (raiz == NULL)
     return;
 
-  for(int i = 0; i < ALFABETO; i++)
-        liberar_trie(raiz->filhos[i]);
+  for (int i = 0; i < ALFABETO; i++)
+    liberar_trie(raiz->filhos[i]);
 
   free(raiz);
 }
-

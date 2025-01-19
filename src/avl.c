@@ -1,111 +1,108 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <avl.h>
 
-int obter_altura(No* no)
+int obter_altura(No *no)
 {
-  if(no == NULL)
+  if (no == NULL)
     return -1;
   else
     return no->altura;
 }
 
-int calcular_fator_de_balanceamento(No* no)
+int calcular_fator_de_balanceamento(No *no)
 {
-  if(no == NULL)
+  if (no == NULL)
     return 0;
   else
     return obter_altura(no->esquerdo) - obter_altura(no->direito);
 }
 
-No* criar_no(int dado)
+No *criar_no(Palavra *dado)
 {
-  No* no = (No*)malloc(sizeof(No));
-  no->dado = dado;
+  No *no = (No *)malloc(sizeof(No));
+  no->dado = (Palavra *)malloc(sizeof(Palavra));
+  strcpy(no->dado->palavra, dado->palavra);
+  no->dado->x_inicio = dado->x_inicio;
+  no->dado->y_inicio = dado->y_inicio;
+  no->dado->x_fim = dado->x_fim;
+  no->dado->y_fim = dado->y_fim;
+
   no->esquerdo = NULL;
   no->direito = NULL;
   no->altura = 0;
-  
   return no;
 }
 
-No* rotacao_direita(No* y)
+No *rotacao_direita(No *y)
 {
-  No* x = y->esquerdo;
-  No* z = x->direito;
+  No *x = y->esquerdo;
+  No *z = x->direito;
 
   x->direito = y;
   y->esquerdo = z;
 
-  if(obter_altura(y->esquerdo) > obter_altura(y->direito))
-    y->altura = 1 + obter_altura(y->esquerdo);
-  else
-    y->altura = 1 + obter_altura(y->direito);
-
-  if(obter_altura(x->esquerdo) > obter_altura(x->direito))
-    x->altura = 1 + obter_altura(x->esquerdo);
-  else
-    x->altura = 1 + obter_altura(x->direito);
+  y->altura = 1 + (obter_altura(y->esquerdo) > obter_altura(y->direito) ? obter_altura(y->esquerdo) : obter_altura(y->direito));
+  x->altura = 1 + (obter_altura(x->esquerdo) > obter_altura(x->direito) ? obter_altura(x->esquerdo) : obter_altura(x->direito));
 
   return x;
 }
 
-No* rotacao_esquerda(No* x)
+No *rotacao_esquerda(No *x)
 {
-  No* y = x->direito;
-  No* z = y->esquerdo;
+  No *y = x->direito;
+  No *z = y->esquerdo;
 
   y->esquerdo = x;
   x->direito = z;
 
-  if(obter_altura(x->esquerdo) > obter_altura(x->direito))
-    x->altura = 1 + obter_altura(x->esquerdo);
-  else
-    x->altura = 1 + obter_altura(x->direito);
-
-  if (obter_altura(y->esquerdo) > obter_altura(y->direito))
-    y->altura = 1 + obter_altura(y->esquerdo);
-  else
-    y->altura = 1 + obter_altura(y->direito);
+  x->altura = 1 + (obter_altura(x->esquerdo) > obter_altura(x->direito) ? obter_altura(x->esquerdo) : obter_altura(x->direito));
+  y->altura = 1 + (obter_altura(y->esquerdo) > obter_altura(y->direito) ? obter_altura(y->esquerdo) : obter_altura(y->direito));
 
   return y;
 }
 
-No* inserir_no(No* no, int dado)
+No *inserir_no(No *no, Palavra *dado)
 {
-  if(no == NULL)
+  if (no == NULL)
     return criar_no(dado);
 
-  if(dado < no->dado)
+  // Comparação de strings usando o campo 'palavra' da estrutura 'Palavra'
+  if (strcmp(dado->palavra, no->dado->palavra) < 0)
+  {
     no->esquerdo = inserir_no(no->esquerdo, dado);
-  else if(dado > no->dado)
-    no->direito = inserir_no(no->direito, dado);
-  else
-    return no;
+  }
+  else if (strcmp(dado->palavra, no->dado->palavra) > 0)
+  {
 
-  if(obter_altura(no->esquerdo) > obter_altura(no->direito))
-    no->altura = 1 + obter_altura(no->esquerdo);
+    no->direito = inserir_no(no->direito, dado);
+  }
   else
-    no->altura = 1 + obter_altura(no->direito);
+  {
+    return no; // Palavra já existe, não insere duplicados
+  }
+
+  // Atualiza a altura do nó
+  no->altura = 1 + (obter_altura(no->esquerdo) > obter_altura(no->direito) ? obter_altura(no->esquerdo) : obter_altura(no->direito));
 
   int balanceamento = calcular_fator_de_balanceamento(no);
 
-  /* Caso 1: Desbalanceamento à esquerda (Rotação à direita). */
-  if(balanceamento > 1 && dado < no->esquerdo->dado)
+  // Balanceamento AVL
+  if (balanceamento > 1 && strcmp(dado->palavra, no->esquerdo->dado->palavra) < 0)
     return rotacao_direita(no);
 
-  /* Caso 2: Desbalanceamento à direita (Rotação à esquerda). */
-  if(balanceamento < -1 && dado > no->direito->dado)
+  if (balanceamento < -1 && strcmp(dado->palavra, no->direito->dado->palavra) > 0)
     return rotacao_esquerda(no);
 
-  /* Caso 3: Desbalanceamento esquerda-direita (Rotação dupla esquerda-direita). */
-  if(balanceamento > 1 && dado > no->esquerdo->dado){
+  if (balanceamento > 1 && strcmp(dado->palavra, no->esquerdo->dado->palavra) > 0)
+  {
     no->esquerdo = rotacao_esquerda(no->esquerdo);
     return rotacao_direita(no);
   }
 
-  /* Caso 4: Desbalanceamento direita-esquerda (Rotação dupla direita-esquerda). */
-  if(balanceamento < -1 && dado < no->direito->dado){
+  if (balanceamento < -1 && strcmp(dado->palavra, no->direito->dado->palavra) < 0)
+  {
     no->direito = rotacao_direita(no->direito);
     return rotacao_esquerda(no);
   }
@@ -113,81 +110,75 @@ No* inserir_no(No* no, int dado)
   return no;
 }
 
-No* menor_valorNo(No* no)
+No *menor_valorNo(No *no)
 {
-  No* atual = no;
-  
-  while(atual->esquerdo != NULL)
+  No *atual = no;
+  while (atual->esquerdo != NULL)
     atual = atual->esquerdo;
-
   return atual;
 }
 
-No* remover_no(No* raiz, int dado)
+No *remover_no(No *raiz, const char *dado)
 {
-  if(raiz == NULL)
+  if (raiz == NULL)
     return raiz;
 
-  if(dado < raiz->dado){
+  // Comparação de strings usando o campo 'palavra' da estrutura 'Palavra'
+  if (strcmp(dado, raiz->dado->palavra) < 0)
     raiz->esquerdo = remover_no(raiz->esquerdo, dado);
-  }else if(dado > raiz->dado){
+  else if (strcmp(dado, raiz->dado->palavra) > 0)
     raiz->direito = remover_no(raiz->direito, dado);
-  }else{
-    /* Nó com apenas um filho ou nenhum. */
-    if((raiz->esquerdo == NULL) || (raiz->direito == NULL)){
-      No* temp;
-          
-      if(raiz->esquerdo != NULL)
-        temp = raiz->esquerdo;
-      else
-        temp = raiz->direito;
-    
-      /* Caso de nenhum filho. */
-      if(temp == NULL){
+  else
+  {
+    if ((raiz->esquerdo == NULL) || (raiz->direito == NULL))
+    {
+      No *temp = raiz->esquerdo ? raiz->esquerdo : raiz->direito;
+
+      if (temp == NULL)
+      {
         temp = raiz;
         raiz = NULL;
-      }else{
+      }
+      else
+      {
         *raiz = *temp;
       }
 
+      free(temp->dado); // Libera a string
       free(temp);
-    }else{
-      /* Caso de dois filhos: obtém o sucessor. */
-      No* temp = menor_valorNo(raiz->direito);
-
-      raiz->dado = temp->dado;
-
-      raiz->direito = remover_no(raiz->direito, temp->dado);
+    }
+    else
+    {
+      No *temp = menor_valorNo(raiz->direito);
+      free(raiz->dado);                                 // Libera a string atual
+      raiz->dado = (Palavra *)malloc(sizeof(Palavra));  // Aloca espaço para a nova palavra
+      strcpy(raiz->dado->palavra, temp->dado->palavra); // Copia a palavra do sucessor
+      raiz->direito = remover_no(raiz->direito, temp->dado->palavra);
     }
   }
 
-  /* Se a árvore tinha apenas um nó. */
-  if(raiz == NULL)
+  if (raiz == NULL)
     return raiz;
 
-  if(obter_altura(raiz->esquerdo) > obter_altura(raiz->direito))
-    raiz->altura = 1 + obter_altura(raiz->esquerdo);
-  else
-    raiz->altura = 1 + obter_altura(raiz->direito);
+  // Atualizar altura e balancear
+  raiz->altura = 1 + (obter_altura(raiz->esquerdo) > obter_altura(raiz->direito) ? obter_altura(raiz->esquerdo) : obter_altura(raiz->direito));
 
   int balanceamento = calcular_fator_de_balanceamento(raiz);
 
-  /* Caso 1: Desbalanceamento à esquerda. */
-  if(balanceamento > 1 && calcular_fator_de_balanceamento(raiz->esquerdo) >= 0)
+  if (balanceamento > 1 && calcular_fator_de_balanceamento(raiz->esquerdo) >= 0)
     return rotacao_direita(raiz);
 
-  /* Caso 2: Desbalanceamento esquerda-direita. */
-  if(balanceamento > 1 && calcular_fator_de_balanceamento(raiz->esquerdo) < 0){
+  if (balanceamento > 1 && calcular_fator_de_balanceamento(raiz->esquerdo) < 0)
+  {
     raiz->esquerdo = rotacao_esquerda(raiz->esquerdo);
     return rotacao_direita(raiz);
   }
 
-  /* Caso 3: Desbalanceamento à direita. */
-  if(balanceamento < -1 && calcular_fator_de_balanceamento(raiz->direito) <= 0)
+  if (balanceamento < -1 && calcular_fator_de_balanceamento(raiz->direito) <= 0)
     return rotacao_esquerda(raiz);
 
-  /* Caso 4: Desbalanceamento direita-esquerda. */
-  if(balanceamento < -1 && calcular_fator_de_balanceamento(raiz->direito) > 0){
+  if (balanceamento < -1 && calcular_fator_de_balanceamento(raiz->direito) > 0)
+  {
     raiz->direito = rotacao_direita(raiz->direito);
     return rotacao_esquerda(raiz);
   }
@@ -195,14 +186,12 @@ No* remover_no(No* raiz, int dado)
   return raiz;
 }
 
-void imprimir_em_ordem(No* raiz)
+void imprimir_em_ordem(No *raiz)
 {
-  if(raiz != NULL){
+  if (raiz != NULL)
+  {
     imprimir_em_ordem(raiz->esquerdo);
-    printf("%d ", raiz->dado);
+    printf("%s ", raiz->dado->palavra); // Acessando o campo 'palavra' de 'Palavra'
     imprimir_em_ordem(raiz->direito);
   }
 }
-
-
-
