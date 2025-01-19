@@ -15,7 +15,7 @@ Este projeto contém a seguinte estrutura de diretórios:
 
 **include**: Contém os cabeçalhos (.h) dos códigos-fonte utilizados no projeto.
 
-**data**: Contém os lidos pelo programa, como as letras que forma o tabuleiro do caça-palavras
+**data**: Contém os arquivos de texto lidos pelo programa, como as letras que formam o tabuleiro do caça-palavras
 
 ## Fluxo do programa
 
